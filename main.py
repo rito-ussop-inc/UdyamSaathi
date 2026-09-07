@@ -32,8 +32,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Secret key for JWT generation (32+ bytes to meet RFC 7518 recommendation)
-SECRET_KEY = "saathi-super-secret-jwt-key-26091-secure-token-32b"
+# Secret key for JWT generation (32+ bytes to meet RFC 7518 recommendation).
+# NEVER hardcode: the previous hardcoded value was retired after appearing in
+# git history. Priority: SAATHI_JWT_SECRET env var -> local untracked
+# jwt_secret.key (auto-created once) -> ephemeral per-process secret.
+def _load_jwt_secret() -> str:
+    env = os.environ.get("SAATHI_JWT_SECRET", "").strip()
+    if len(env) >= 32:
+        return env
+    try:
+        kf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jwt_secret.key")
+        if os.path.exists(kf):
+            with open(kf, "r", encoding="utf-8") as f:
+                saved = f.read().strip()
+            if len(saved) >= 32:
+                return saved
+        fresh = secrets.token_hex(32)
+        with open(kf, "w", encoding="utf-8") as f:
+            f.write(fresh)
+        return fresh
+    except OSError:
+        return secrets.token_hex(32)
+
+
+SECRET_KEY = _load_jwt_secret()
 ALGORITHM = "HS256"
 
 # ---------- SQLite user database ----------

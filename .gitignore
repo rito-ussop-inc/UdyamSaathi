@@ -1,0 +1,14 @@
+# Local secrets & data (never commit)
+users.db
+jwt_secret.key
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temp uploads / recordings
+temp_*.wav
+
+# Logs
+*.log
