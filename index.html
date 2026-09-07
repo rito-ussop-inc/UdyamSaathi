@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UdyamSaathi — Rural Business Advisor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!--
+    BACKGROUND:
+    Replace the CSS background in styles.css (.app-background) with your own image/gradient.
+    Example:
+    background-image: linear-gradient(...), url("your-background.jpg");
+  -->
+
+  <div class="app-background"></div>
+  <div class="noise"></div>
+
+  <header class="topbar glass">
+    <a class="brand" href="#" data-page="home">
+      <span class="brand-mark">S</span>
+      <span>
+        <strong>UdyamSaathi</strong>
+        <small data-i18n="brand_tag">Business Advisor</small>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="Main navigation">
+      <button class="nav-btn active" data-page="home" data-i18n="nav_home">Home</button>
+      <button class="nav-btn" data-page="plan" data-i18n="nav_plan">My Plan</button>
+      <button class="nav-btn" data-page="decision" data-i18n="nav_decision">Decision Lab</button>
+    </nav>
+
+    <div class="top-actions">
+      <div class="lang-wrap">
+        <button class="icon-btn" id="langBtn" data-i18n-title="lang_label" title="Language"><span class="lang-short">EN</span></button>
+        <div class="lang-menu glass" id="langMenu" hidden>
+          <button class="lang-item" data-lang="en" type="button">English</button>
+          <button class="lang-item" data-lang="hi" type="button">हिंदी</button>
+          <button class="lang-item" data-lang="bn" type="button">বাংলা</button>
+        </div>
+      </div>
+      <div class="profile-wrap">
+        <button class="profile-btn" id="profileBtn">
+          <span class="avatar" id="profileAvatar">A</span>
+          <span class="profile-name" id="profileName">Arjun</span>
+          <span class="profile-caret">▾</span>
+        </button>
+        <div class="profile-menu glass" id="profileMenu">
+          <div class="profile-menu-head">
+            <span class="avatar" id="menuAvatar">A</span>
+            <div>
+              <strong id="menuName">Arjun</strong>
+              <small id="menuEmail">Signed in</small>
+            </div>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button class="profile-menu-item" data-action="view-plan">
+            <span>📋</span> <span data-i18n="mi_plan">My Plan</span> <small>›</small>
+          </button>
+          <button class="profile-menu-item" data-action="decision">
+            <span>⚖</span> <span data-i18n="mi_decision">Decision Lab</span> <small>›</small>
+          </button>
+          <div class="profile-menu-divider"></div>
+          <button class="profile-menu-item danger" data-action="logout">
+            <span>⎋</span> <span data-i18n="mi_logout">Log out</span> <small>›</small>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+
+    <!-- PAGE 1: HOME -->
+    <section class="page active" id="page-home">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="live-dot"></span> <span data-i18n="hero_eyebrow">Your local business companion</span></div>
+          <h1 data-i18n-html="hero_title">Take the risk.<br><em>Know the risk.</em></h1>
+          <p class="hero-text" data-i18n="hero_text">
+            Tell us where you are, what you can invest, and what you want to build.
+            UdyamSaathi helps you understand the opportunity before you borrow.
+          </p>
+
+          <div class="hero-actions">
+            <button class="primary-btn" data-page="plan">
+              <span data-i18n="hero_start">Start my business plan</span> <span>→</span>
+            </button>
+            <button class="secondary-btn" id="voiceBtn">
+              <span class="mic">◉</span> <span data-i18n="hero_speak">Speak instead</span>
+            </button>
+          </div>
+
+          <div class="trust-row">
+            <span>✓ <span data-i18n="trust1">Local market signals</span></span>
+            <span>✓ <span data-i18n="trust2">Financial planning</span></span>
+            <span>✓ <span data-i18n="trust3">Risk simulation</span></span>
+          </div>
+        </div>
+
+        <div class="welcome-card glass">
+          <div class="card-top">
+            <span class="status-pill" id="locStatusPill" data-i18n="pill_set">SET LOCATION</span>
+            <button class="more-btn">•••</button>
+          </div>
+
+          <div class="loc-controls">
+            <div class="loc-search">
+              <input id="locationSearch" type="text" data-i18n-ph="search_ph" placeholder="Search a city or place… (e.g. Bengaluru)" autocomplete="off" spellcheck="false" />
+              <ul class="loc-suggestions" id="locSuggestions" hidden></ul>
+            </div>
+            <button class="loc-btn" id="useLocationBtn">
+              <span class="loc-dot">📍</span>
+              <span id="locBtnText" data-i18n="btn_use_loc">Use My Location</span>
+            </button>
+          </div>
+
+          <div class="loc-readout">
+            <small id="locSub" data-i18n="loc_sub_d">Detect your location to see what's nearby</small>
+            <h3 id="locTitle" data-i18n="loc_title_d">Set your location</h3>
+          </div>
+
+          <div class="real-map" id="locationMap"></div>
+          <small class="loc-map-hint">🖱️ <span data-i18n="map_tip">Tip: click anywhere on the map to change your location</span></small>
+
+          <div class="nearby-panel" id="nearbyPanel" hidden>
+            <div class="nearby-head">
+              <small data-i18n="nearby_head">NEARBY DAIRY ECOSYSTEM</small>
+              <span id="nearbyCount"></span>
+            </div>
+            <ul class="nearby-list" id="nearbyList"></ul>
+            <div class="nearby-density" id="nearbyDensity" hidden></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-grid">
+        <button class="quick-card glass" data-page="plan">
+          <span class="quick-icon">⌂</span>
+          <span><strong data-i18n="q1t">Build my plan</strong><small data-i18n="q1s">Location, capital & business</small></span>
+          <span class="quick-arrow">→</span>
+        </button>
+        <button class="quick-card glass" data-page="decision">
+          <span class="quick-icon">⚖</span>
+          <span><strong data-i18n="q2t">Challenge my idea</strong><small data-i18n="q2s">See the good & the risks</small></span>
+          <span class="quick-arrow">→</span>
+        </button>
+        <button class="quick-card glass" data-page="decision">
+          <span class="quick-icon">◔</span>
+          <span><strong data-i18n="q3t">See the next 2 years</strong><small data-i18n="q3s">Explore possible outcomes</small></span>
+          <span class="quick-arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- PAGE 2: PLAN -->
+    <section class="page" id="page-plan">
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow" data-i18n="step1">STEP 01 · YOUR BUSINESS</div>
+          <h2 data-i18n="plan_h">Let's understand your plan.</h2>
+          <p data-i18n="plan_sub">Answer a few simple questions. You can change them later.</p>
+        </div>
+        <div class="progress-wrap">
+          <span data-i18n="of3">1 of 3</span>
+          <div class="progress"><i style="width:33%"></i></div>
+        </div>
+      </div>
+
+      <div class="plan-layout">
+        <div class="form-card glass">
+          <div class="section-label" data-i18n="what_start">What do you want to start?</div>
+          <div class="business-choice selected">
+            <span class="business-emoji">🐄</span>
+            <span><strong data-i18n="dairy_t">Dairy</strong><small data-i18n="dairy_s">Small-scale milk production</small></span>
+            <span class="check">✓</span>
+          </div>
+
+          <div class="section-label" data-i18n="start_sit">Your starting situation</div>
+
+          <label class="field-label" data-i18n="own_cap">Own capital</label>
+          <div class="input-wrap">
+            <span>₹</span>
+            <input id="capitalInput" type="text" inputmode="numeric" value="100000" autocomplete="off" />
+          </div>
+
+          <label class="field-label" data-i18n="num_cows">Number of cows</label>
+          <div class="stepper">
+            <button id="minusCow">−</button>
+            <strong id="cowCount">3</strong>
+            <button id="plusCow">+</button>
+          </div>
+
+          <div class="toggle-list">
+            <div class="toggle-row">
+              <div><strong data-i18n="shed_t">Existing shed</strong><small data-i18n="shed_s">Do you already have a cattle shed?</small></div>
+              <button class="toggle" data-toggle="shed"><i></i></button>
+            </div>
+            <div class="toggle-row on">
+              <div><strong data-i18n="fod_t">Land for fodder</strong><small data-i18n="fod_s">You can grow some fodder yourself.</small></div>
+              <button class="toggle active" data-toggle="fodder"><i></i></button>
+            </div>
+            <div class="toggle-row on">
+              <div><strong data-i18n="fam_t">Family labour</strong><small data-i18n="fam_s">A family member can help without hired wages.</small></div>
+              <button class="toggle active" data-toggle="family"><i></i></button>
+            </div>
+            <div class="toggle-row on">
+              <div><strong data-i18n="buy_t">Distributor / buyer</strong><small data-i18n="buy_s">You already have a route to market.</small></div>
+              <button class="toggle active" data-toggle="buyer"><i></i></button>
+            </div>
+          </div>
+
+          <button class="primary-btn full" id="analyzeBtn"><span data-i18n="analyze_btn">Analyze my plan</span> <span>→</span></button>
+        </div>
+
+        <aside class="side-summary glass">
+          <div class="section-label" data-i18n="side_loc">Your location</div>
+          <div class="location-card">
+            <span class="location-icon">⌖</span>
+            <div><strong id="planLocationName" data-i18n="plan_loc_t">Set your location</strong><small id="planLocationDetail" data-i18n="plan_loc_s">Detect it from the home page</small></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="section-label" data-i18n="side_checks">What Saathi checks</div>
+          <ul class="check-list">
+            <li><span>01</span> <span data-i18n="chk1">Local demand</span></li>
+            <li><span>02</span> <span data-i18n="chk2">Competition & access</span></li>
+            <li><span>03</span> <span data-i18n="chk3">Business economics</span></li>
+            <li><span>04</span> <span data-i18n="chk4">Loan & repayment</span></li>
+            <li><span>05</span> <span data-i18n="chk5">Possible future outcomes</span></li>
+          </ul>
+
+          <div class="tip-box">
+            <span>✦</span>
+            <p data-i18n="side_tip">You don't need to know finance. We'll explain every important number in simple language.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PAGE 3: DECISION -->
+    <section class="page" id="page-decision">
+      <div class="page-heading decision-heading">
+        <div>
+          <div class="eyebrow" data-i18n="dl_e">DECISION LAB</div>
+          <h2 data-i18n="dl_h">Your plan, from both sides.</h2>
+          <p data-i18n="dl_s">One side looks for opportunity. The other looks for what could go wrong.</p>
+        </div>
+        <span class="score-pill" id="riskPill" data-i18n="risk_adj">RISK-ADJUSTED</span>
+      </div>
+
+      <div class="decision-grid">
+        <div class="debate-card advocate glass">
+          <div class="debate-head">
+            <span class="agent-icon">↗</span>
+            <div><small data-i18n="opp_e">THE OPPORTUNITY VIEW</small><h3 data-i18n="opp_h">Why it could work</h3></div>
+          </div>
+          <ul id="advocateList">
+            <li><span>+</span> You already have land for fodder, reducing dependence on purchased feed.</li>
+            <li><span>+</span> Family labour reduces immediate cash expenses.</li>
+            <li><span>+</span> An existing distributor gives you a clearer route to market.</li>
+          </ul>
+          <button class="text-btn" data-i18n="opp_ask">Ask the opportunity advisor →</button>
+        </div>
+
+        <div class="debate-card challenger glass">
+          <div class="debate-head">
+            <span class="agent-icon">!</span>
+            <div><small data-i18n="risk_e">THE RISK VIEW</small><h3 data-i18n="risk_h">What could go wrong</h3></div>
+          </div>
+          <ul id="challengerList">
+            <li><span>!</span> A new cattle shed increases the money needed before the first sale.</li>
+            <li><span>!</span> Milk output can vary by cow, season and health.</li>
+            <li><span>!</span> A loan that looks affordable on paper may pressure monthly cash flow.</li>
+          </ul>
+          <button class="text-btn" data-i18n="risk_ask">Ask the risk challenger →</button>
+        </div>
+      </div>
+
+      <div class="swot-card glass">
+        <div class="forecast-header">
+          <div>
+            <div class="eyebrow" data-i18n="sw_e">SWOT · YOUR MICRO-ENTERPRISE</div>
+            <h3 data-i18n="sw_h">Feasibility at a glance</h3>
+          </div>
+          <span class="score-pill" id="swotRiskPill">—</span>
+        </div>
+        <div class="swot-grid">
+          <div class="swot-cell"><h4 data-i18n="sw_s">Strengths</h4><ul id="swotS"></ul></div>
+          <div class="swot-cell"><h4 data-i18n="sw_w">Weaknesses</h4><ul id="swotW"></ul></div>
+          <div class="swot-cell"><h4 data-i18n="sw_o">Opportunities</h4><ul id="swotO"></ul></div>
+          <div class="swot-cell"><h4 data-i18n="sw_th">Threats</h4><ul id="swotT"></ul></div>
+        </div>
+      </div>
+
+      <div class="forecast-card glass">
+        <div class="forecast-header">
+          <div>
+            <div class="eyebrow" data-i18n="out_e">24-MONTH OUTLOOK</div>
+            <h3 data-i18n="out_h">What could your cash flow look like?</h3>
+          </div>
+          <button class="secondary-btn small" id="simulateBtn" data-i18n="sim_btn">Run simulation</button>
+        </div>
+
+        <div class="chart-area">
+          <div class="y-labels" id="yLabels">
+            <span id="yTick0">₹50k</span><span id="yTick1">₹25k</span><span id="yTick2">₹0</span><span id="yTick3">−₹25k</span>
+          </div>
+          <div class="chart">
+            <div class="grid-line one"></div><div class="grid-line two"></div><div class="grid-line three"></div>
+            <svg viewBox="0 0 720 190" preserveAspectRatio="none" aria-label="24-month simulated cash flow chart">
+              <line class="zero-line" id="simZero" x1="0" y1="140" x2="720" y2="140"></line>
+              <path class="chart-fill" id="simFill" d="M0 150 C80 138,120 130,180 122 S280 102,350 112 S450 82,520 72 S630 45,720 34 L720 190 L0 190 Z"></path>
+              <path class="opportunity-line" id="simOpportunity" d="M0 150 C80 110,120 90,180 75 S280 50,350 40 S450 30,520 20 S630 15,720 10"></path>
+              <path class="chart-line" id="simLine" d="M0 150 C80 138,120 130,180 122 S280 102,350 112 S450 82,520 72 S630 45,720 34"></path>
+              <path class="stress-line" id="simStress" d="M0 152 C90 154,130 162,190 158 S290 170,350 160 S450 174,520 164 S640 178,720 170"></path>
+            </svg>
+            <div class="x-labels"><span data-i18n="m_now">Now</span><span data-i18n="m_6">6m</span><span data-i18n="m_12">12m</span><span data-i18n="m_18">18m</span><span data-i18n="m_24">24m</span></div>
+          </div>
+        </div>
+
+        <div class="scenario-row">
+          <div class="scenario"><span class="dot good"></span><div><strong data-i18n="sc_opp">Opportunity case</strong><small data-i18n="sc_opp_s">Demand grows + good milk realization</small></div><b id="scenarioOpportunity">₹34k</b></div>
+          <div class="scenario"><span class="dot normal"></span><div><strong data-i18n="sc_exp">Expected case</strong><small data-i18n="sc_exp_s">Normal production & costs</small></div><b id="scenarioExpected">₹12k</b></div>
+          <div class="scenario"><span class="dot risk"></span><div><strong data-i18n="sc_str">Stress case</strong><small data-i18n="sc_str_s">Lower output + higher feed costs</small></div><b id="scenarioStress">−₹9k</b></div>
+        </div>
+      </div>
+
+      <div class="recommendation glass">
+        <div class="rec-icon">✦</div>
+        <div class="rec-copy">
+          <div class="eyebrow" data-i18n="rec_e">EARLY RECOMMENDATION</div>
+          <h3 id="recTitle">Promising, but don't rush into the largest loan.</h3>
+          <p id="recText">Your strongest advantages are fodder access, family labour and an existing buyer. The main pressure point is the cost of building the shed and servicing debt.</p>
+        </div>
+        <button class="primary-btn" id="optimizeBtn"><span data-i18n="opt_btn">Optimize my plan</span> <span>→</span></button>
+      </div>
+
+      <div class="scheme-card glass">
+        <div class="forecast-header">
+          <div>
+            <div class="eyebrow" data-i18n="sc_e">SCHEME ROUTER · MODULE 2</div>
+            <h3 id="schemeName">Term Loan Scheme</h3>
+          </div>
+          <span class="score-pill" id="schemePill">—</span>
+        </div>
+        <p class="scheme-terms" id="schemeTerms"></p>
+        <div class="opt-compare">
+          <div class="opt-col">
+            <div class="opt-head current" data-i18n="sc_struct">Your structuring</div>
+            <div class="opt-body" id="schemeBody"></div>
+          </div>
+          <div class="opt-vs">vs</div>
+          <div class="opt-col">
+            <div class="opt-head suggested" data-i18n="sc_entitle">90% entitlement</div>
+            <div class="opt-body" id="schemeEntBody"></div>
+          </div>
+        </div>
+        <p class="scheme-elig" id="schemeElig"></p>
+        <div class="scheme-table-wrap">
+          <table class="scheme-table">
+            <thead><tr>
+              <th data-i18n="sc_q">Qtr</th><th data-i18n="sc_months">Months</th>
+              <th data-i18n="sc_pay">Payment</th><th data-i18n="sc_prin">Principal</th>
+              <th data-i18n="sc_int">Interest</th><th data-i18n="sc_bal">Balance</th>
+            </tr></thead>
+            <tbody id="schemeSched"></tbody>
+          </table>
+        </div>
+        <small class="loc-map-hint" data-i18n="sc_note">Moratorium holiday first: interest accrues, then quarterly payments begin. Prototype estimate — confirm with your SCA.</small>
+      </div>
+    </section>
+  </main>
+
+  <!-- Optimize modal -->
+  <div class="modal-overlay" id="optimizeModal" hidden>
+    <div class="modal glass">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow" data-i18n="mo_smart">SMART OPTIMIZER</div>
+          <h3 id="optTitle">Optimized plan</h3>
+        </div>
+        <button class="modal-close" id="optClose" aria-label="Close">✕</button>
+      </div>
+
+      <p class="modal-reason" id="optReason"></p>
+
+      <div class="opt-compare">
+        <div class="opt-col">
+          <div class="opt-head current" data-i18n="opt_yours">Your plan</div>
+          <div class="opt-body" id="optCurrentBody"></div>
+        </div>
+        <div class="opt-vs">vs</div>
+        <div class="opt-col">
+          <div class="opt-head suggested" data-i18n="opt_optd">Optimized</div>
+          <div class="opt-body" id="optOptimalBody"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="secondary-btn" id="optKeep" data-i18n="mo_keep">Keep my plan</button>
+        <button class="primary-btn" id="optApply"><span data-i18n="mo_apply">Apply this plan</span> <span>→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debate agent drawer -->
+  <div class="chat-overlay" id="chatOverlay" hidden>
+    <div class="chat-drawer glass" id="chatDrawer">
+      <div class="chat-head">
+        <div class="chat-agent">
+          <span class="agent-icon" id="chatAgentIcon">↗</span>
+          <div>
+            <small id="chatAgentRole">THE OPPORTUNITY VIEW</small>
+            <h4 id="chatAgentName">Opportunity Advisor</h4>
+          </div>
+        </div>
+        <button class="modal-close" id="chatClose" aria-label="Close">✕</button>
+      </div>
+
+      <div class="chat-body" id="chatBody"></div>
+
+      <div class="chat-chips" id="chatChips"></div>
+
+      <div class="chat-input-row">
+        <input id="chatInput" type="text" data-i18n-ph="chat_ph" placeholder="Ask your question..." autocomplete="off" />
+        <button class="primary-btn send" id="chatSend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="i18n.js?v=20260209-lang"></script>
+  <script src="app.js?v=20260209-lang"></script>
+</body>
+</html>

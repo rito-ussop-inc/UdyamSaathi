@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In / Sign Up — UdyamSaathi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .login-body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      border-radius: 26px;
+      padding: 30px;
+    }
+
+    .login-card .brand-mark {
+      margin: 0 auto 16px;
+    }
+
+    .login-card h1 {
+      font-family: "Playfair Display", serif;
+      font-weight: 500;
+      font-size: 30px;
+      margin: 0 0 4px;
+      letter-spacing: -.02em;
+    }
+
+    .login-card .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0 0 20px;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, .16);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 22px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 9px 0;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .auth-tab.active {
+      background: var(--orange);
+      color: #1a1008;
+    }
+
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    .field {
+      text-align: left;
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin: 0 0 7px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 13px;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, .13);
+    }
+
+    .input-wrap > span.ico {
+      color: var(--orange-light);
+      font-size: 16px;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      color: var(--cream);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .input-wrap input::placeholder {
+      color: rgba(247, 239, 231, .4);
+      font-weight: 400;
+    }
+
+    .eye-btn {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 20px;
+      font-size: 11px;
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .remember input {
+      accent-color: var(--orange);
+      width: 15px;
+      height: 15px;
+    }
+
+    .forgot {
+      color: var(--orange-light);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .forgot:hover { text-decoration: underline; }
+
+    .error-msg {
+      display: none;
+      background: rgba(217, 83, 79, .12);
+      border: 1px solid rgba(217, 83, 79, .3);
+      color: #ffb3ad;
+      font-size: 11px;
+      border-radius: 11px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .error-msg.show { display: block; }
+
+    .primary-btn.full {
+      width: 100%;
+      margin-top: 0;
+    }
+
+    .primary-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .switch-line {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .switch-line button {
+      background: none;
+      border: 0;
+      color: var(--orange-light);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .demo-hints {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, .08);
+      text-align: center;
+    }
+
+    .demo-hints small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 9px;
+    }
+
+    .demo-chip-row {
+      display: flex;
+      gap: 9px;
+      justify-content: center;
+    }
+
+    .demo-chip {
+      background: rgba(229, 123, 53, .12);
+      border: 1px solid rgba(229, 123, 53, .32);
+      color: var(--cream);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all .16s ease;
+    }
+
+    .demo-chip:hover {
+      background: rgba(229, 123, 53, .28);
+      border-color: var(--orange);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-background"></div>
+  <div class="noise"></div>
+
+  <div class="lang-float">
+    <div class="lang-wrap">
+      <button class="icon-btn" id="langBtn" data-i18n-title="lang_label" title="Language" type="button"><span class="lang-short">EN</span></button>
+      <div class="lang-menu glass" id="langMenu" hidden>
+        <button class="lang-item" data-lang="en" type="button">English</button>
+        <button class="lang-item" data-lang="hi" type="button">हिंदी</button>
+        <button class="lang-item" data-lang="bn" type="button">বাংলা</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-body">
+    <div class="login-card glass">
+      <span class="brand-mark">S</span>
+      <h1>UdyamSaathi</h1>
+      <p class="sub" data-i18n="lg_sub">Your local business companion</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" type="button" data-i18n="tab_login">Log In</button>
+        <button class="auth-tab" id="tabSignup" type="button" data-i18n="tab_signup">Sign Up</button>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <!-- LOGIN FORM -->
+      <form class="auth-form active" id="formLogin" autocomplete="on">
+        <div class="field">
+          <label for="loginUsername" data-i18n="f_user">Username</label>
+          <div class="input-wrap">
+            <span class="ico">👤</span>
+            <input id="loginUsername" type="text" data-i18n-ph="ph_user" placeholder="Your username" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 18px;">
+          <label for="loginPassword" data-i18n="f_pass">Password</label>
+          <div class="input-wrap">
+            <span class="ico">🔒</span>
+            <input id="loginPassword" type="password" data-i18n-ph="ph_pass" placeholder="Your password" autocomplete="current-password" />
+            <button class="eye-btn ts-toggle" data-target="loginPassword" type="button" title="Show / hide password">👁️</button>
+          </div>
+        </div>
+
+        <div class="row-between">
+          <label class="remember">
+            <input type="checkbox" id="rememberMe" />
+            <span data-i18n="remember">Remember me</span>
+          </label>
+          <a class="forgot" href="#" onclick="alert('Contact support to reset your password.'); return false;" data-i18n="forgot">Forgot password?</a>
+        </div>
+
+        <button class="primary-btn full" id="loginBtn" type="submit"><span data-i18n="signin_btn">Sign In</span> <span>→</span></button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form class="auth-form" id="formSignup" autocomplete="on">
+        <div class="field">
+          <label for="suName" data-i18n="f_name">Full Name</label>
+          <div class="input-wrap">
+            <span class="ico">🪪</span>
+            <input id="suName" type="text" data-i18n-ph="ph_name" placeholder="Ramesh Patel" autocomplete="name" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="suUsername" data-i18n="f_user">Username</label>
+          <div class="input-wrap">
+            <span class="ico">👤</span>
+            <input id="suUsername" type="text" data-i18n-ph="ph_uname" placeholder="Choose a username" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="suEmail" data-i18n="f_email">Email</label>
+          <div class="input-wrap">
+            <span class="ico">✉️</span>
+            <input id="suEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 18px;">
+          <label for="suPassword" data-i18n="f_pass6">Password (min 6 characters)</label>
+          <div class="input-wrap">
+            <span class="ico">🔒</span>
+            <input id="suPassword" type="password" data-i18n-ph="ph_newpass" placeholder="Create a password" autocomplete="new-password" />
+            <button class="eye-btn ts-toggle" data-target="suPassword" type="button" title="Show / hide password">👁️</button>
+          </div>
+        </div>
+
+        <button class="primary-btn full" id="signupBtn" type="submit"><span data-i18n="signup_btn">Create Account</span> <span>→</span></button>
+      </form>
+
+      <p class="switch-line" id="switchLine">New here? <button type="button" id="gotoSignup">Create an account</button></p>
+
+      <div class="demo-hints">
+        <small data-i18n="demo_t">Quick Demo Accounts:</small>
+        <div class="demo-chip-row">
+          <button type="button" class="demo-chip" onclick="fillCreds('RPGOAT', '12345678')">👤 RPGOAT</button>
+          <button type="button" class="demo-chip" onclick="fillCreds('arjun', 'password123')">👤 Arjun</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="i18n.js?v=20260209-lang"></script>
+  <script>
+    const t = (k, v) => (window.I18N ? window.I18N.t(k, v) : k);
+    let currentTab = "login";
+    window.onLanguageApplied = () => { renderSwitchLine(); };
+    function renderSwitchLine() {
+      const toLogin = currentTab === "login";
+      switchLine.innerHTML = toLogin
+        ? `${t("sw_new")} <button type="button" id="gotoSignup">${t("sw_create")}</button>`
+        : `${t("sw_have")} <button type="button" id="gotoSignup">${t("sw_login")}</button>`;
+      document.getElementById("gotoSignup").addEventListener("click", () => switchTab(toLogin ? "signup" : "login"));
+    }
+    const API = (window.location.protocol.startsWith("http") && window.location.hostname)
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "http://127.0.0.1:8000";
+
+    const toast = document.getElementById("toast");
+    const errorMsg = document.getElementById("errorMsg");
+    const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
+    const formLogin = document.getElementById("formLogin");
+    const formSignup = document.getElementById("formSignup");
+    const tabLogin = document.getElementById("tabLogin");
+    const tabSignup = document.getElementById("tabSignup");
+    const switchLine = document.getElementById("switchLine");
+    const gotoSignup = document.getElementById("gotoSignup");
+
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.classList.add("show");
+    }
+
+    function clearError() {
+      errorMsg.classList.remove("show");
+    }
+
+    function switchTab(which) {
+      currentTab = which;
+      const toLogin = which === "login";
+      tabLogin.classList.toggle("active", toLogin);
+      tabSignup.classList.toggle("active", !toLogin);
+      formLogin.classList.toggle("active", toLogin);
+      formSignup.classList.toggle("active", !toLogin);
+      renderSwitchLine();
+      clearError();
+    }
+
+    tabLogin.addEventListener("click", () => switchTab("login"));
+    tabSignup.addEventListener("click", () => switchTab("signup"));
+    gotoSignup.addEventListener("click", () => switchTab("signup"));
+
+    function fillCreds(u, p) {
+      switchTab("login");
+      document.getElementById("loginUsername").value = u;
+      document.getElementById("loginPassword").value = p;
+      notify(t("t_filled", { u }));
+    }
+
+    // Auto-redirect if already logged in (skip if ?force=1 or ?logout=1)
+    const url = new URLSearchParams(window.location.search);
+    const forceView = url.get("force") === "1" || url.get("logout") === "1";
+    if (localStorage.getItem("saathi_token") && !forceView) {
+      window.location.replace("business.html");
+    }
+    if (url.get("logout") === "1") {
+      localStorage.removeItem("saathi_token");
+      localStorage.removeItem("saathi_remember_user");
+      localStorage.removeItem("saathi_user");
+    }
+
+    // Remember me: prefill username if stored
+    const savedUser = localStorage.getItem("saathi_remember_user");
+    if (savedUser) {
+      document.getElementById("loginUsername").value = savedUser;
+      document.getElementById("rememberMe").checked = true;
+    }
+
+    // Show / hide password toggles
+    document.querySelectorAll(".ts-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const input = document.getElementById(btn.dataset.target);
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.textContent = show ? "🙈" : "👁️";
+      });
+    });
+
+    function setButton(btn, loading, text, extra) {
+      btn.disabled = loading;
+      btn.innerHTML = loading ? text : text + (extra || "");
+    }
+
+    function finishLogin(data, user, remember, isRegister) {
+      localStorage.setItem("saathi_token", data.access_token);
+      localStorage.setItem("saathi_user", JSON.stringify(user));
+
+      if (remember) {
+        localStorage.setItem("saathi_remember_user", user.username);
+      } else {
+        localStorage.removeItem("saathi_remember_user");
+      }
+
+      notify((isRegister ? t("t_signup_ok") : t("t_login_ok")));
+      setTimeout(() => window.location.replace("business.html"), 600);
+    }
+
+    async function post(path, body) {
+      const response = await fetch(API + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await response.json();
+      if (!response.ok) throw { status: response.status, data };
+      return data;
+    }
+
+    // LOGIN HANDLER
+    async function handleLogin(e) {
+      if (e) e.preventDefault();
+      clearError();
+      const user = document.getElementById("loginUsername").value.trim();
+      const pass = document.getElementById("loginPassword").value.trim();
+
+      if (!user || !pass) {
+        showError(user && !pass ? t("e_need_pass") : pass && !user ? t("e_need_user") : t("e_need_both"));
+        return;
+      }
+
+      setButton(loginBtn, true, t("b_signing"));
+      try {
+        const data = await post("/api/login", { username: user, password: pass });
+        finishLogin(data, data.user, document.getElementById("rememberMe").checked, false);
+      } catch (err) {
+        showError(err.data && err.data.error || t("e_noserver"));
+        setButton(loginBtn, false, t("signin_btn"), " <span>→</span>");
+      }
+    }
+
+    // SIGNUP HANDLER
+    async function handleSignup(e) {
+      if (e) e.preventDefault();
+      clearError();
+      const name = document.getElementById("suName").value.trim();
+      const user = document.getElementById("suUsername").value.trim();
+      const email = document.getElementById("suEmail").value.trim();
+      const pass = document.getElementById("suPassword").value;
+
+      if (!name || !user || !email || !pass) {
+        showError(t("e_fill_all"));
+        return;
+      }
+      if (pass.length < 6) {
+        showError(t("e_pass6"));
+        return;
+      }
+
+      setButton(signupBtn, true, t("b_creating"));
+      try {
+        const data = await post("/api/register", { name, username: user, email, password: pass });
+        finishLogin(data, data.user, true, true);
+      } catch (err) {
+        showError(err.data && err.data.error || t("e_noserver"));
+        setButton(signupBtn, false, t("signup_btn"), " <span>→</span>");
+      }
+    }
+
+    loginBtn.addEventListener("click", handleLogin);
+    formLogin.addEventListener("submit", handleLogin);
+
+    signupBtn.addEventListener("click", handleSignup);
+    formSignup.addEventListener("submit", handleSignup);
+  </script>
+</body>
+</html>

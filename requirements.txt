@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+pydantic
+SpeechRecognition
+python-multipart
+PyJWT

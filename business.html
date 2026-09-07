@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Your Business — UdyamSaathi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .business-body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .business-shell {
+      width: 100%;
+      max-width: 780px;
+      text-align: center;
+    }
+
+    .business-head {
+      margin: 0 0 28px;
+    }
+
+    .business-head .brand-mark {
+      margin: 0 auto 16px;
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+    }
+
+    .business-head h1 {
+      font-family: "Playfair Display", serif;
+      font-weight: 500;
+      font-size: 40px;
+      margin: 0 0 8px;
+      letter-spacing: -.025em;
+    }
+
+    .business-head .sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .business-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .biz-card {
+      position: relative;
+      border-radius: 20px;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 15px;
+      align-items: center;
+      text-align: left;
+      color: var(--cream);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      transition: .2s ease;
+      cursor: pointer;
+    }
+
+    .biz-card:hover {
+      transform: translateY(-3px);
+      background: rgba(255,255,255,.09);
+    }
+
+    .biz-card.selected {
+      border-color: var(--orange);
+      background: rgba(229,123,53,.12);
+      box-shadow: 0 0 0 1px var(--orange), 0 14px 36px rgba(229,123,53,.18);
+    }
+
+    .biz-card.soon:hover {
+      transform: none;
+      background: rgba(255,255,255,.04);
+    }
+
+    .biz-card.soon .biz-emoji {
+      filter: grayscale(.6);
+      opacity: .6;
+    }
+
+    .biz-emoji {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: rgba(229,123,53,.1);
+      font-size: 26px;
+    }
+
+    .biz-info strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .biz-info small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .biz-status {
+      font-size: 9px;
+      letter-spacing: .1em;
+      font-weight: 700;
+      padding: 6px 9px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    .biz-status.available {
+      color: #b8e0a0;
+      background: rgba(157,194,131,.12);
+      border: 1px solid rgba(157,194,131,.26);
+    }
+
+    .biz-status.soon {
+      color: var(--muted);
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+    }
+
+    .business-actions {
+      margin-top: 26px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @media (max-width: 600px) {
+      .business-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-background"></div>
+  <div class="noise"></div>
+
+  <div class="lang-float">
+    <div class="lang-wrap">
+      <button class="icon-btn" id="langBtn" data-i18n-title="lang_label" title="Language" type="button"><span class="lang-short">EN</span></button>
+      <div class="lang-menu glass" id="langMenu" hidden>
+        <button class="lang-item" data-lang="en" type="button">English</button>
+        <button class="lang-item" data-lang="hi" type="button">हिंदी</button>
+        <button class="lang-item" data-lang="bn" type="button">বাংলা</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="business-body">
+    <div class="business-shell">
+      <div class="business-head">
+        <span class="brand-mark">S</span>
+        <h1 data-i18n="bz_h">What do you want to build?</h1>
+        <p class="sub" data-i18n="bz_s">Choose a business to get started with UdyamSaathi.</p>
+      </div>
+
+      <div class="business-grid" id="businessGrid">
+        <button class="biz-card" data-business="dairy" type="button">
+          <span class="biz-emoji">🐄</span>
+          <span class="biz-info"><strong data-i18n="dairy_t">Dairy</strong><small data-i18n="bz_dairy_s">Small-scale milk production</small></span>
+          <span class="biz-status available" data-i18n="avail">AVAILABLE</span>
+        </button>
+
+        <button class="biz-card soon" data-business="agriculture" type="button" disabled>
+          <span class="biz-emoji">🌾</span>
+          <span class="biz-info"><strong data-i18n="bz_agri_t">Agriculture</strong><small data-i18n="bz_agri_s">Crops, produce & farming</small></span>
+          <span class="biz-status soon" data-i18n="soon">COMING SOON</span>
+        </button>
+
+        <button class="biz-card soon" data-business="poultry" type="button" disabled>
+          <span class="biz-emoji">🐔</span>
+          <span class="biz-info"><strong data-i18n="bz_poul_t">Poultry</strong><small data-i18n="bz_poul_s">Eggs, broilers & layers</small></span>
+          <span class="biz-status soon" data-i18n="soon">COMING SOON</span>
+        </button>
+
+        <button class="biz-card soon" data-business="retail" type="button" disabled>
+          <span class="biz-emoji">🛒</span>
+          <span class="biz-info"><strong data-i18n="bz_ret_t">Retail</strong><small data-i18n="bz_ret_s">Shops & local trade</small></span>
+          <span class="biz-status soon" data-i18n="soon">COMING SOON</span>
+        </button>
+
+        <button class="biz-card soon" data-business="textiles" type="button" disabled>
+          <span class="biz-emoji">🧵</span>
+          <span class="biz-info"><strong data-i18n="bz_tex_t">Textiles</strong><small data-i18n="bz_tex_s">Weaving, garments & crafts</small></span>
+          <span class="biz-status soon" data-i18n="soon">COMING SOON</span>
+        </button>
+
+        <button class="biz-card soon" data-business="other" type="button" disabled>
+          <span class="biz-emoji">🏪</span>
+          <span class="biz-info"><strong data-i18n="bz_oth_t">Other Business</strong><small data-i18n="bz_oth_s">Anything else you'd like to run</small></span>
+          <span class="biz-status soon" data-i18n="soon">COMING SOON</span>
+        </button>
+      </div>
+
+      <div class="business-actions">
+        <button class="primary-btn full" id="continueBtn" disabled><span data-i18n="continue_btn">Continue</span> <span>→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="i18n.js?v=20260209-lang"></script>
+  <script>
+    const t = (k, v) => (window.I18N ? window.I18N.t(k, v) : k);
+    // --- Access control: must be logged in ---
+    if (!localStorage.getItem("saathi_token")) {
+      window.location.replace("login.html");
+    }
+
+    const toast = document.getElementById("toast");
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    const continueBtn = document.getElementById("continueBtn");
+    let selected = null;
+
+    // Only Dairy is available for now.
+    const AVAILABLE = { dairy: true };
+    const BIZ_KEY = {
+      dairy: "dairy_t",
+      agriculture: "bz_agri_t",
+      poultry: "bz_poul_t",
+      retail: "bz_ret_t",
+      textiles: "bz_tex_t",
+      other: "bz_oth_t"
+    };
+    const BIZ_NAMES = {
+      dairy: "Dairy",
+      agriculture: "Agriculture",
+      poultry: "Poultry",
+      retail: "Retail",
+      textiles: "Textiles",
+      other: "Other Business"
+    };
+    const bizName = (biz) => (window.I18N ? t(BIZ_KEY[biz] || "dairy_t") : (BIZ_NAMES[biz] || biz));
+
+    // Select / deselect a card
+    document.querySelectorAll(".biz-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const biz = card.dataset.business;
+        if (!AVAILABLE[biz]) {
+          notify(t("t_soon", { biz: bizName(biz) }));
+          return;
+        }
+        // toggle selection
+        document.querySelectorAll(".biz-card").forEach(c => c.classList.remove("selected"));
+        if (selected === biz) {
+          selected = null;
+          card.classList.remove("selected");
+        } else {
+          selected = biz;
+          card.classList.add("selected");
+        }
+        continueBtn.disabled = selected !== "dairy";
+        if (selected === "dairy") {
+          localStorage.setItem("selectedBusiness", "dairy");
+          notify(t("t_dairy_sel"));
+        }
+      });
+    });
+
+    continueBtn.addEventListener("click", () => {
+      if (selected === "dairy") {
+        localStorage.setItem("selectedBusiness", "dairy");
+        window.location.replace("index.html");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "dairy": {
+    "cow_cost": 80000,
+    "shed_cost_per_cow": 84000,
+    "equipment_base": 50000,
+    "equipment_extra_per_cow": 5000,
+    "transport": 15000,
+    "insurance_per_cow": 5500,
+
+    "concentrate_per_cow_month": 7920,
+    "green_fodder_per_cow_month": 1125,
+    "dry_fodder_per_cow_month": 840,
+    "hired_labour_month": 9000,
+    "vet_per_cow_month": 192,
+    "utilities_month": 550,
+    "misc_month": 1025,
+
+    "milk_yield_litre_per_cow_day": 12,
+    "milk_price_per_litre": 36.7,
+
+    "annual_interest": 0.08,
+    "tenure_years": 7,
+
+    "shed_free_capacity": 3,
+    "fodder_free_cows": 4,
+    "family_labour_capacity": 5,
+    "no_distributor_discount": 0.1,
+
+    "margin_fraction": 0.1,
+    "schemes": {
+      "micro": {
+        "name": "Micro Finance Scheme",
+        "max_project_cost": 140000,
+        "max_loan": 125000,
+        "annual_interest": 0.065,
+        "tenure_years": 3,
+        "moratorium_months": 3
+      },
+      "term": {
+        "name": "Term Loan Scheme",
+        "max_project_cost": 5000000,
+        "max_loan": 4500000,
+        "annual_interest": 0.08,
+        "tenure_years": 7,
+        "moratorium_months": 6
+      }
+    }
+  }
+}
