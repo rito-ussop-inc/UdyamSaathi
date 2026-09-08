@@ -1575,21 +1575,16 @@ function showLocation(loc) {
   }
 }
 
-function initMap(lat, lng) {
-  if (!mapEl) return;
-  if (userMap) {
-    userMap.setView([lat, lng], 13);
-    if (userMarker) userMarker.setLatLng([lat, lng]);
-    else userMarker = L.circleMarker([lat, lng], { radius: 8, color: "#e57b35", weight: 3, fillColor: "#ffad70", fillOpacity: 0.7 }).addTo(userMap).bindPopup("<strong>You are here</strong>");
-    return;
-  }
-  userMap = L.map(mapEl).setView([lat, lng], 13);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-  }).addTo(userMap);
-  userMarker = L.circleMarker([lat, lng], { radius: 8, color: "#e57b35", weight: 3, fillColor: "#ffad70", fillOpacity: 0.7 }).addTo(userMap).bindPopup("<strong>You are here</strong>");
+const DEFAULT_MAP = { lat: 22.5726, lng: 88.3639, zoom: 11 }; // Kolkata metro fallback
 
+function placeUserMarker(lat, lng) {
+  if (userMarker) userMarker.setLatLng([lat, lng]);
+  else userMarker = L.circleMarker([lat, lng], { radius: 8, color: "#e57b35", weight: 3, fillColor: "#ffad70", fillOpacity: 0.7 }).addTo(userMap).bindPopup("<strong>You are here</strong>");
+}
+
+function wireMapClick() {
+  if (!userMap || userMap._clickWired) return;
+  userMap._clickWired = true;
   // Clicking the map background (not a POI marker) moves/re-sets your location.
   // Debounced so rapid clicks don't fire overlapping Overpass searches.
   userMap.on("click", (e) => {
@@ -1600,14 +1595,36 @@ function initMap(lat, lng) {
     const { lat: mlat, lng: mlng } = e.latlng;
     relocating = true;
     try {
-      if (userMarker) userMarker.setLatLng([mlat, mlng]);
-      else userMarker = L.circleMarker([mlat, mlng], { radius: 8, color: "#e57b35", weight: 3, fillColor: "#ffad70", fillOpacity: 0.7 }).addTo(userMap).bindPopup("<strong>You are here</strong>");
+      placeUserMarker(mlat, mlng);
       userMap.panTo([mlat, mlng], { animate: true });
       applyDetectedLocation(mlat, mlng);
     } finally {
       setTimeout(() => { relocating = false; }, 900);
     }
   });
+}
+
+function initMap(lat, lng, zoom, mark) {
+  if (!mapEl) return;
+  if (typeof L === "undefined") {
+    mapEl.innerHTML = `<div style="display:grid;place-items:center;height:100%;color:var(--muted);font-size:12px;padding:20px;text-align:center;">${t("map_cdn_fail")}</div>`;
+    return;
+  }
+  const z = zoom || 13;
+  const showMark = mark !== false;
+  if (userMap) {
+    userMap.setView([lat, lng], z);
+    if (showMark) placeUserMarker(lat, lng);
+    wireMapClick();
+    return;
+  }
+  userMap = L.map(mapEl).setView([lat, lng], z);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+  }).addTo(userMap);
+  if (showMark) placeUserMarker(lat, lng);
+  wireMapClick();
 }
 
 function placeLabel(p) {
@@ -1870,6 +1887,10 @@ initLocationSearch();
     showNearbyLoading();
     const nearby = await fetchNearby(latitude, longitude);
     renderNearby(nearby, { requestId: myId });
+  } else {
+    // No location yet (fresh browser): still show a live map so the box is
+    // never an empty dark panel. Clicking it sets the location.
+    initMap(DEFAULT_MAP.lat, DEFAULT_MAP.lng, DEFAULT_MAP.zoom, false);
   }
 })();
 
