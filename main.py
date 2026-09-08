@@ -15,6 +15,7 @@ import hmac
 import secrets
 import jwt
 import math
+import tempfile
 import time
 import urllib.request
 import urllib.parse
@@ -32,16 +33,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Writable file root: serverless hosts (Vercel) have a read-only bundle —
+# only /tmp is writable there. Locally we keep files next to the code.
+def _local_path(name: str) -> str:
+    if os.environ.get("VERCEL"):
+        return os.path.join("/tmp", name)
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
+
+
 # Secret key for JWT generation (32+ bytes to meet RFC 7518 recommendation).
 # NEVER hardcode: the previous hardcoded value was retired after appearing in
 # git history. Priority: SAATHI_JWT_SECRET env var -> local untracked
 # jwt_secret.key (auto-created once) -> ephemeral per-process secret.
+# NOTE on serverless: set SAATHI_JWT_SECRET in the host dashboard, otherwise
+# every instance mints its own secret and tokens won't validate across them.
 def _load_jwt_secret() -> str:
     env = os.environ.get("SAATHI_JWT_SECRET", "").strip()
     if len(env) >= 32:
         return env
     try:
-        kf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jwt_secret.key")
+        kf = _local_path("jwt_secret.key")
         if os.path.exists(kf):
             with open(kf, "r", encoding="utf-8") as f:
                 saved = f.read().strip()
@@ -59,7 +70,9 @@ SECRET_KEY = _load_jwt_secret()
 ALGORITHM = "HS256"
 
 # ---------- SQLite user database ----------
-DB_FILE = "users.db"
+# On Vercel this lives in /tmp (ephemeral): demo seed user always works,
+# but registered accounts reset on redeploy/cold instance.
+DB_FILE = _local_path("users.db")
 
 
 def get_db():
@@ -1082,7 +1095,10 @@ def nearby_places(lat: float, lng: float, radius: int = 5000, business: str = "d
             widened = True
 
     # 4) Overpass — last resort (often blocked, slow).
-    if len(deduped) < 3:
+    # SKIP_OVERPASS=1 (set on Vercel): serverless hobby functions time out
+    # around 10s, and Photon + curated already cover live areas.
+    over_results = []
+    if len(deduped) < 3 and not os.environ.get("SKIP_OVERPASS"):
         try:
             over_results = _fetch_overpass_combined(clat, clon, max_radius) or []
         except Exception:
@@ -2204,9 +2220,15 @@ def agent_ask(req: AgentQuestion):
         },
     }
 
-@app.get("/")
-def root():
+@app.get("/api/health")
+def health():
     return {"message": "Saathi backend is running"}
+
+
+@app.get("/", response_class=HTMLResponse)
+def root():
+    # Bare domain opens the app itself (previously returned JSON here).
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
 
 recognizer = sr.Recognizer()
 
@@ -2219,7 +2241,7 @@ SPEECH_LANGS = {"hi": "hi-IN", "bn": "bn-IN", "en": "en-IN"}
 
 @app.post("/api/transcribe")
 async def transcribe_audio(audio_file: UploadFile = File(...), lang: str = Form("en")):
-    temp_file_path = f"temp_{audio_file.filename}"
+    temp_file_path = os.path.join(tempfile.gettempdir(), f"temp_{audio_file.filename}")
     speech_lang = SPEECH_LANGS.get((lang or "en").lower()[:2], "en-IN")
 
     with open(temp_file_path, "wb") as buffer:

@@ -59,9 +59,15 @@ document.querySelectorAll(".toggle").forEach(toggle => {
 });
 
 // --- Backend API Base URL ---
-const API_BASE = (window.location.protocol.startsWith("http") && window.location.hostname)
-  ? `${window.location.protocol}//${window.location.hostname}:8000`
-  : "http://127.0.0.1:8000";
+// Local dev (localhost) talks to :8000; any hosted domain (Vercel, etc.)
+// uses same-origin (port 443/80) — never append :8000 there.
+const API_BASE = (() => {
+  const proto = window.location.protocol;
+  const host = window.location.hostname;
+  if (!proto.startsWith("http") || !host) return "http://127.0.0.1:8000";
+  if (host === "localhost" || host === "127.0.0.1") return `${proto}//${host}:8000`;
+  return window.location.origin;
+})();
 
 // --- Per-user plan persistence ---
 const getToken = () => localStorage.getItem("saathi_token");

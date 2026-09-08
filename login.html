@@ -358,9 +358,13 @@
         : `${t("sw_have")} <button type="button" id="gotoSignup">${t("sw_login")}</button>`;
       document.getElementById("gotoSignup").addEventListener("click", () => switchTab(toLogin ? "signup" : "login"));
     }
-    const API = (window.location.protocol.startsWith("http") && window.location.hostname)
-      ? `${window.location.protocol}//${window.location.hostname}:8000`
-      : "http://127.0.0.1:8000";
+    const API = (() => {
+      const proto = window.location.protocol;
+      const host = window.location.hostname;
+      if (!proto.startsWith("http") || !host) return "http://127.0.0.1:8000";
+      if (host === "localhost" || host === "127.0.0.1") return `${proto}//${host}:8000`;
+      return window.location.origin;
+    })();
 
     const toast = document.getElementById("toast");
     const errorMsg = document.getElementById("errorMsg");
