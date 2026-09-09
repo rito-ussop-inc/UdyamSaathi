@@ -1348,6 +1348,15 @@ chatChips.addEventListener("click", (e) => {
   if (chip) { chatInput.value = chip.dataset.q; sendChat(); }
 });
 
+// Solid topbar after scrolling so page content never smears through the glass.
+(function wireTopbarScroll() {
+  const bar = document.querySelector(".topbar");
+  if (!bar) return;
+  const onScroll = () => bar.classList.toggle("scrolled", window.scrollY > 24);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+})();
+
 // Profile dropdown menu
 const profileWrap = document.querySelector(".profile-wrap");
 const profileBtn = document.getElementById("profileBtn");
