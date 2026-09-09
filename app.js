@@ -265,6 +265,8 @@ function renderSwot(plan, data) {
   }
   if (nbCount > 0) O.push(t("sw_o_buyers", { n: nbCount.toLocaleString(numLocale()) }));
   else O.push(t("sw_o_mapmore"));
+  const nbGaps = (nb && nb.gaps) || [];
+  nbGaps.slice(0, 2).forEach(g => O.push(t("sw_o_gap", { type: g })));
   if (!plan.distributor) O.push(t("sw_o_findbuyer"));
   else O.push(t("sw_o_route"));
   O.push(t("sw_o_scale"));
@@ -305,6 +307,7 @@ function renderScheme(data) {
     sRow(t("sc_margin"), formatINR(data.margin_required)) +
     sRow(t("own_cap"), formatINR(data.own_capital)) +
     sRow(t("opt_loan"), formatINR(data.loan_needed)) +
+    sRow(t("sc_wc"), formatINR(data.working_capital_3mo || data.monthly_cost * 3)) +
     sRow(t("sc_emi"), formatINR(data.estimated_emi));
   document.getElementById("schemeEntBody").innerHTML =
     sRow(t("sc_maxproj"), formatINR(data.max_supportable_project)) +
@@ -1390,6 +1393,8 @@ if (profileBtn && profileWrap) {
       localStorage.removeItem("saathi_user");
       notify(t("t_logged_out"));
       setTimeout(() => window.location.replace("login.html?logout=1"), 500);
+    } else if (action === "go-home") {
+      showPage("home");
     } else if (action === "view-plan") {
       showPage("plan");
     } else if (action === "decision") {
@@ -1687,7 +1692,11 @@ function renderNearby(data, opts) {
       msg = `<li class="nearby-empty">${t("none_found", { r: radiusShown })}<br><button class="secondary-btn small" id="nearbyRetry" style="margin-top:8px">${t("retry_wider")}</button></li>`;
     }
     nearbyList.innerHTML = msg;
-    try { document.getElementById("nearbyDensity").hidden = true; } catch (e) {}
+    try {
+      document.getElementById("nearbyDensity").hidden = true;
+      document.getElementById("nearbyGaps").hidden = true;
+      document.getElementById("nearbyChannels").hidden = true;
+    } catch (e) {}
     const rb = document.getElementById("nearbyRetry");
     if (rb && currentLocation) {
       rb.addEventListener("click", () => {
@@ -1723,6 +1732,30 @@ function renderNearby(data, opts) {
         densEl.innerHTML = `<b>${t("nb_density")}</b> ` + parts.join(" · ");
         densEl.hidden = false;
       } else { densEl.hidden = true; }
+    }
+  } catch (e) {}
+  try {
+    const gapsEl = document.getElementById("nearbyGaps");
+    if (gapsEl) {
+      const gaps = data.gaps || [];
+      if (gaps.length) {
+        gapsEl.innerHTML = `<b>${t("nb_gaps_h")}</b> ` + gaps.slice(0, 4).map(g =>
+          `<div>◌ ${t("nb_gap", { type: g })}</div>`).join("");
+        gapsEl.hidden = false;
+      } else { gapsEl.hidden = true; }
+    }
+  } catch (e) {}
+  try {
+    const chEl = document.getElementById("nearbyChannels");
+    if (chEl) {
+      const chs = data.channels || [];
+      if (chs.length) {
+        chEl.innerHTML = `<b>${t("ch_h")}</b>` + chs.map(c =>
+          `<div class="channel-row"><span>${t("ch_" + c.channel)}</span>` +
+          c.places.slice(0, 3).map(p => `<div>📍 ${escPop(p.name || "")} — ${fmt1(p.distance_km)} km</div>`).join("") +
+          `</div>`).join("");
+        chEl.hidden = false;
+      } else { chEl.hidden = true; }
     }
   } catch (e) {}
   const shown = data.places.slice(0, 12);

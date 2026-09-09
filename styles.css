@@ -1495,6 +1495,29 @@ h1 em {
     gap: 12px;
     flex-direction: column;
   }
+
+  /* Compare columns stack on phones instead of squeezing. */
+  .opt-compare {
+    flex-direction: column;
+  }
+  .opt-vs {
+    align-self: center;
+    transform: rotate(90deg);
+    margin: -2px 0;
+  }
+  .opt-body {
+    font-size: 13px;
+  }
+
+  /* Long translated labels wrap instead of overflowing. */
+  .opt-row span { flex: 1; min-width: 0; }
+  .opt-row b { text-align: right; }
+
+  .swot-card, .scheme-card {
+    padding: 16px;
+  }
+  .real-map { height: 220px; }
+  .nearby-list { max-height: 180px; }
 }
 
 /* ---------- Optimize modal ---------- */
@@ -1745,6 +1768,9 @@ h1 em {
 
 @media (max-width: 480px) {
   .chat-drawer { max-width: 100%; }
+  .modal-actions { flex-direction: column; }
+  h1 { font-size: 40px; }
+  .brand small { display: none; }
 }
 
 /* SWOT + Scheme Router cards (SIH Module 1 §3 + Module 2) */
@@ -1799,8 +1825,39 @@ h1 em {
   margin-top: 12px;
   max-height: 240px;
   overflow-y: auto;
+  overflow-x: auto;
   border: 1px solid rgba(255,255,255,.09);
   border-radius: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.nearby-channels {
+  margin-top: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+  border: 1px solid rgba(255,255,255,.09);
+  background: rgba(255,255,255,.035);
+  border-radius: 11px;
+  line-height: 1.6;
+}
+.nearby-channels > b {
+  display: block;
+  font-size: 9px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: rgba(247,239,231,.5);
+  margin-bottom: 6px;
+}
+.channel-row { margin-bottom: 6px; }
+.channel-row:last-child { margin-bottom: 0; }
+.channel-row > span {
+  display: block;
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--orange-light);
+}
+.channel-row div div {
+  color: rgba(247,239,231,.8);
+  padding-left: 4px;
 }
 .scheme-table {
   width: 100%;

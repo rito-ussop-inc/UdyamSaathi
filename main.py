@@ -1132,9 +1132,29 @@ def nearby_places(lat: float, lng: float, radius: int = 5000, business: str = "d
     for p in deduped:
         by_category[p.get("type", "?")] = by_category.get(p.get("type", "?"), 0) + 1
 
+    # Niche gaps: dairy categories with zero mapped hits = possible openings.
+    gaps = [c for c in DAIRY_POI_CATEGORIES if c not in by_category]
+
+    # Distribution channels: output routes mapped from POI types (nearest first).
+    CHANNEL_MAP = {
+        "collection": ["Milk Collection Centre"],
+        "mandi": ["Dairy Market"],
+        "retail": ["Other Dairy Business", "Dairy Farm"],
+    }
+    channels = []
+    for ch, types in CHANNEL_MAP.items():
+        cps = [p for p in deduped if p.get("type") in types][:3]
+        if cps:
+            channels.append({"channel": ch, "places": [
+                {"name": p.get("name") or p.get("type"), "distance_km": p.get("distance_km"),
+                 "lat": p.get("lat"), "lon": p.get("lon")} for p in cps
+            ]})
+
     out = {
         "count": len(deduped),
         "by_category": by_category,
+        "gaps": gaps,
+        "channels": channels,
         "business": business,
         "center": {"lat": clat, "lng": clon},
         "radius_m": used_radius_m,

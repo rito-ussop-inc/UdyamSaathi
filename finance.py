@@ -78,6 +78,8 @@ def analyze_dairy_plan(plan):
 
     margin_required = round(project_cost * margin_frac, 2)
     margin_shortfall = round(max(0.0, margin_required - own_capital), 2)
+    # Working capital: 3 months of operating costs to survive to first income.
+    working_capital_3mo = round(monthly_cost * 3, 2)
     max_loan_90pct = round(min(project_cost * (1 - margin_frac), sch["max_loan"]), 2)
     max_supportable_project = round(min(own_capital / margin_frac if own_capital > 0 else 0.0,
                                         term["max_project_cost"]), 2)
@@ -168,6 +170,7 @@ def analyze_dairy_plan(plan):
         },
         "margin_required": margin_required,
         "margin_shortfall": margin_shortfall,
+        "working_capital_3mo": working_capital_3mo,
         "max_loan_90pct": max_loan_90pct,
         "max_supportable_project": max_supportable_project,
         "eligible": eligible,
