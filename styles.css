@@ -439,7 +439,6 @@ h1 em {
 .welcome-card {
   border-radius: 26px;
   padding: 15px;
-  transform: rotate(1deg);
 }
 
 .card-top {
@@ -1462,9 +1461,11 @@ h1 em {
   }
 
   .topbar {
-    width: calc(100% - 20px);
-    top: 10px;
-    margin-top: 10px;
+    width: 100%;
+    top: 0;
+    margin: 0 auto;
+    border-radius: 0 0 18px 18px;
+    min-height: 60px;
   }
 
   .top-actions {
