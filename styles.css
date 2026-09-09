@@ -1454,7 +1454,9 @@ h1 em {
   }
 }
 
-@media (max-width: 560px) {
+/* Phone + zoomed-out-phone presentation. Kept at/below 768px so pinch-zoom
+   reflow on phones stays in the same style; full-size laptop (769px+) untouched. */
+@media (max-width: 768px) {
   .app-shell {
     width: min(100% - 24px, 1120px);
     padding-top: 35px;
@@ -1525,6 +1527,20 @@ h1 em {
   }
   .real-map { height: 220px; }
   .nearby-list { max-height: 180px; }
+
+  /* Trust badges stay stacked (never one cramped line). */
+  .trust-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 11px;
+  }
+  /* 16px+ inputs stop iOS auto-zoom on focus. */
+  .loc-search input,
+  .chat-input-row input,
+  .input-wrap input {
+    font-size: 16px;
+  }
 }
 
 /* ---------- Optimize modal ---------- */
@@ -1778,19 +1794,6 @@ h1 em {
   .modal-actions { flex-direction: column; }
   h1 { font-size: 40px; }
   .brand small { display: none; }
-  /* Trust badges stack instead of one cramped line. */
-  .trust-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 7px;
-    font-size: 11px;
-  }
-  /* Stop iOS auto-zoom on focus (needs 16px+ inputs). Desktop untouched. */
-  .loc-search input,
-  .chat-input-row input,
-  .input-wrap input {
-    font-size: 16px;
-  }
   .nearby-list .nearby-info strong { font-size: 12px; }
   .loc-map-hint { font-size: 11px; }
 }
